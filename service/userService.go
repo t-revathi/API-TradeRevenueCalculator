@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"sort"
+	"strings"
 	"time"
 	//"github.com/go-chi/render"
 )
@@ -35,10 +37,11 @@ func (u *UserService) PerformCalculateProfit(ctx context.Context, w http.Respons
 func processTransactions(transactions []Transaction, config Config) {
 	formatTransactions(&transactions)
 	fmt.Printf("\n %v+", transactions)
-	/*buyShares := getbuyShares(transactions, config)
-	//fmt.Println(buyShares)
+	buyShares := getbuyShares(transactions, config)
+	fmt.Println(buyShares)
 	sellShares := getsellShares(transactions, config)
-	return calculatePandL(buyShares, sellShares, config)*/
+	fmt.Println(sellShares)
+	//return calculatePandL(buyShares, sellShares, config)
 }
 
 func formatTransactions(transactions *[]Transaction) {
@@ -52,3 +55,42 @@ func formatTransactions(transactions *[]Transaction) {
 	}
 
 }
+
+func getbuyShares(transactions []Transaction, config Config) []Transaction {
+
+	buytransactions := make([]Transaction, 0)
+
+	for _, t := range transactions {
+		if config.SkipCorporateAction {
+			if strings.ToLower(t.Activity) != "trade" {
+				continue
+			}
+		}
+		if strings.ToLower(t.Direction) == "buy" {
+			buytransactions = append(buytransactions, t)
+
+		}
+
+	}
+	return buytransactions
+}
+
+func getsellShares(transaction []Transaction, config Config) []Transaction {
+	selltransactions := make([]Transaction, 0)
+	for _, t := range transaction {
+		if config.SkipCorporateAction {
+			if strings.ToLower(t.Activity) != "trade" {
+				continue
+			}
+		}
+		if strings.ToLower(t.Direction) == "sell" {
+			selltransactions = append(selltransactions, t)
+
+		}
+	}
+	sort.Slice(selltransactions, func(i, j int) bool {
+		return selltransactions[i].Date.Before(selltransactions[j].Date)
+	})
+	return selltransactions
+}
+

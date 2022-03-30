@@ -8,7 +8,7 @@ type DataCalculateRevenue struct {
 	Config Config
 }
 type Config struct{
-	SkipCorporateAction string
+	SkipCorporateAction bool
 	FinancialYear       string
 	StartFinancialMonth string
 	EndFinancialMonth   string
