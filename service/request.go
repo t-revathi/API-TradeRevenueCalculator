@@ -24,3 +24,11 @@ type Transaction struct {
 	Activity  string
 	UnitPrice float32
 }
+
+type Income struct {
+	Date          time.Time
+	Market        string
+	Quantity      int
+	PandL         float32
+	SellUnitPrice float32
+}
